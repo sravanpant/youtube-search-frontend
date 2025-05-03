@@ -409,7 +409,7 @@ export default function ResultsTable({
                                       href={link}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-blue-400 hover:text-blue-300 hover:underline text-sm dark:text-blue-300 dark:hover:text-blue-200"
+                                      className="text-blue-400 hover:text-blue-300 hover:underline text-sm dark:text-blue-600 dark:hover:text-blue-700"
                                     >
                                       {link}
                                     </a>
