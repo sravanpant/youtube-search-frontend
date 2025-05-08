@@ -69,3 +69,11 @@ export interface SortableHeaderProps {
 export interface VideoProps {
   video: Video;
 }
+
+export interface SearchFormProps {
+  onSearch: (params: SearchParams) => void;
+  isLoading: boolean;
+  initialSearchParams?: SearchParams;
+  onCompare?: () => void;
+  hasResults?: boolean; // To enable/disable compare button
+}

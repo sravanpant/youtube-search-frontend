@@ -145,7 +145,7 @@ export const VideoRow = ({ video }: VideoProps) => {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 hover:underline text-sm dark:text-blue-600 dark:hover:text-blue-700"
+                          className="text-blue-600 hover:text-blue-500 hover:underline text-sm dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           {link}
                         </a>

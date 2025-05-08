@@ -67,10 +67,10 @@ export default function ResultsTable({
       </div>
 
       {/* Table for desktop view */}
-      <div className="rounded-lg border border-neutral-200 overflow-hidden bg-white">
+      <div className="rounded-lg border border-border overflow-hidden bg-card">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-neutral-50 text-neutral-600 uppercase text-xs tracking-wider">
+            <thead className="bg-muted text-muted-foreground uppercase text-xs tracking-wider">
               <tr>
                 <SortableHeader
                   field="title"
@@ -130,7 +130,7 @@ export default function ResultsTable({
                 />
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-200">
+            <tbody className="divide-y divide-border">
               {isLoading ? (
                 // Skeleton rows during loading
                 Array.from({ length: 10 }).map((_, index) => (

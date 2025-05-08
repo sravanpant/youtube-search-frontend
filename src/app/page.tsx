@@ -1,7 +1,7 @@
-// frontend/src/app/page.tsx
+// src/app/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect
 import SearchForm from "@/components/SearchForm";
 import ResultsTable from "@/components/ResultsTable";
 import { Video, SearchParams } from "@/types/types";
@@ -17,6 +17,16 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { ComparisonEmptyCard } from "@/components/ComparisonEmptyCard";
+import { BrandComparisonsSection } from "@/components/BrandComparisonsSection";
+
+// Define a type for brand comparison
+interface BrandComparison {
+  brandName: string;
+  videos: Video[];
+  searchParams: SearchParams;
+}
 
 export default function Home() {
   const defaultSearchParams: SearchParams = {
@@ -32,15 +42,30 @@ export default function Home() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastSearchParams, setLastSearchParams] =
-    useState<SearchParams>(defaultSearchParams);
+  const [lastSearchParams, setLastSearchParams] = useState<SearchParams>(defaultSearchParams);
   const [activeTab, setActiveTab] = useState("results");
+  
+  // Brand comparison state
+  const [comparisons, setComparisons] = useState<BrandComparison[]>([]);
+  const [showEmptyCard, setShowEmptyCard] = useState(false);
+  const [isCompareMode, setIsCompareMode] = useState(false);
+
+  // When videos update, check if we should hide empty card
+  useEffect(() => {
+    if (videos.length > 0 && showEmptyCard) {
+      setShowEmptyCard(false);
+    }
+  }, [showEmptyCard, videos]);
 
   const handleSearch = async (params: SearchParams) => {
     setLoading(true);
     setError(null);
     setLastSearchParams(params);
     setActiveTab("results"); // Switch to results tab on search
+    
+    // Note: We don't hide the empty card here anymore
+    // Only hide it when results actually arrive (via useEffect)
+    
     try {
       const data = await api.search(params);
       setVideos(data);
@@ -54,6 +79,39 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle compare brands action
+  const handleCompareBrands = () => {
+    if (videos.length > 0 && lastSearchParams.brand_name) {
+      // Add current results to comparisons
+      setComparisons([
+        ...comparisons,
+        {
+          brandName: lastSearchParams.brand_name,
+          videos: [...videos],
+          searchParams: {...lastSearchParams}
+        }
+      ]);
+      
+      // Clear current results and prepare for new search
+      setVideos([]);
+      
+      // Show empty card waiting for new search
+      setShowEmptyCard(true);
+      setIsCompareMode(true);
+      
+      // Update search params with empty brand name but keep all filters
+      setLastSearchParams({
+        ...lastSearchParams,
+        brand_name: ""
+      });
+    }
+  };
+  
+  // Remove a comparison
+  const removeComparison = (index: number) => {
+    setComparisons(comparisons.filter((_, i) => i !== index));
   };
 
   // Summary statistics for analytics tab
@@ -70,6 +128,21 @@ export default function Home() {
   const videosWithLinks = videos.filter(
     (v) => v.brand_links && v.brand_links.length > 0
   ).length;
+
+  // Helper component for empty state when no search has been done
+  const NoResultsCard = () => (
+    <Card className="shadow-sm border-border/80">
+      <CardContent className="px-6 py-10 flex flex-col items-center justify-center text-center">
+        <div className="bg-primary/10 dark:bg-primary/20 p-3 rounded-full mb-4">
+          <SearchCheck className="h-6 w-6 text-primary" />
+        </div>
+        <h3 className="text-lg font-medium">No Search Results Yet</h3>
+        <p className="text-muted-foreground mt-2 max-w-md">
+          Enter a brand name and configure your search parameters above to find YouTube videos mentioning your brand.
+        </p>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -89,10 +162,6 @@ export default function Home() {
                   content landscape
                 </p>
               </div>
-              {/* <div className="flex items-center space-x-2 bg-background/80 backdrop-blur-sm py-1 px-3 rounded-full border border-border/50 shadow-sm text-sm text-muted-foreground">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span>Enterprise Edition</span>
-              </div> */}
             </div>
           </div>
         </div>
@@ -101,7 +170,13 @@ export default function Home() {
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 -mt-6">
           <Card className="shadow-md border-border/50 overflow-hidden">
             <CardContent className="p-6">
-              <SearchForm onSearch={handleSearch} isLoading={loading} />
+              <SearchForm 
+                onSearch={handleSearch} 
+                isLoading={loading}
+                initialSearchParams={lastSearchParams}
+                onCompare={handleCompareBrands}
+                hasResults={videos.length > 0}
+              />
             </CardContent>
           </Card>
         </div>
@@ -118,9 +193,27 @@ export default function Home() {
 
         {/* Results Section - Full width with appropriate padding */}
         <div className="px-4 sm:px-6 lg:px-8 mt-8 max-w-[1920px] mx-auto">
+          {/* Current Search Results */}
           {videos.length > 0 ? (
-            <Tabs defaultValue="results" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="mb-10">
               <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-semibold flex items-center">
+                    <SearchCheck className="h-5 w-5 mr-2 text-primary" />
+                    Results for &quot;{lastSearchParams.brand_name}&quot;
+                  </h2>
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-0">
+                    {videos.length} videos
+                  </Badge>
+                </div>
+                
+                <div className="text-sm font-medium text-muted-foreground flex items-center">
+                  <LineChart className="h-4 w-4 mr-2 text-primary" />
+                  {videos.length} videos found
+                </div>
+              </div>
+              
+              <Tabs defaultValue="results" value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="bg-muted/60">
                   <TabsTrigger value="results" className="data-[state=active]:bg-background">
                     <SearchCheck className="h-4 w-4 mr-2" />
@@ -131,77 +224,80 @@ export default function Home() {
                     Analytics
                   </TabsTrigger>
                 </TabsList>
-                <div className="text-sm font-medium text-muted-foreground flex items-center">
-                  <LineChart className="h-4 w-4 mr-2 text-primary" />
-                  {videos.length} videos found
-                </div>
-              </div>
-              
-              <TabsContent value="results" className="mt-0">
-                <Card className="shadow-sm border-border/80">
-                  <CardContent className="p-0">
-                    <div className="w-full overflow-auto px-5">
-                      <ResultsTable
-                        videos={videos}
-                        searchParams={lastSearchParams}
-                        isLoading={loading}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="analytics" className="mt-0">
-                <Card className="shadow-sm border-border/80">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-medium mb-4 flex items-center">
-                      <BarChart3 className="h-5 w-5 mr-2 text-primary" />
-                      Video Performance Analytics
-                    </h3>
-                    
-                    <Separator className="mb-6" />
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                      <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
-                        <div className="text-sm text-muted-foreground">Total Videos</div>
-                        <div className="text-2xl font-semibold mt-1">{videos.length}</div>
+                
+                <TabsContent value="results" className="mt-4">
+                  <Card className="shadow-sm border-border/80">
+                    <CardContent className="p-0">
+                      <div className="w-full overflow-auto p-5">
+                        <ResultsTable
+                          videos={videos}
+                          searchParams={lastSearchParams}
+                          isLoading={loading}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="analytics" className="mt-4">
+                  <Card className="shadow-sm border-border/80">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-medium mb-4 flex items-center">
+                        <BarChart3 className="h-5 w-5 mr-2 text-primary" />
+                        Video Performance Analytics
+                      </h3>
+                      
+                      <Separator className="mb-6" />
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
+                          <div className="text-sm text-muted-foreground">Total Videos</div>
+                          <div className="text-2xl font-semibold mt-1">{videos.length}</div>
+                        </div>
+                        
+                        <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
+                          <div className="text-sm text-muted-foreground">Total Views</div>
+                          <div className="text-2xl font-semibold mt-1">{totalViews.toLocaleString()}</div>
+                        </div>
+                        
+                        <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
+                          <div className="text-sm text-muted-foreground">Engagement Rate</div>
+                          <div className="text-2xl font-semibold mt-1">{avgEngagement}%</div>
+                        </div>
+                        
+                        <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
+                          <div className="text-sm text-muted-foreground">Videos with Brand Links</div>
+                          <div className="text-2xl font-semibold mt-1">{videosWithLinks} <span className="text-sm text-muted-foreground">({Math.round(videosWithLinks/videos.length*100)}%)</span></div>
+                        </div>
                       </div>
                       
-                      <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
-                        <div className="text-sm text-muted-foreground">Total Views</div>
-                        <div className="text-2xl font-semibold mt-1">{totalViews.toLocaleString()}</div>
+                      <div className="mt-8 text-sm text-muted-foreground">
+                        <p>The analytics dashboard provides high-level insights based on your search results. Enterprise users have access to detailed performance metrics, trend analysis, and competitor benchmarking.</p>
                       </div>
-                      
-                      <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
-                        <div className="text-sm text-muted-foreground">Engagement Rate</div>
-                        <div className="text-2xl font-semibold mt-1">{avgEngagement}%</div>
-                      </div>
-                      
-                      <div className="bg-muted/30 rounded-lg p-4 border border-border/60">
-                        <div className="text-sm text-muted-foreground">Videos with Brand Links</div>
-                        <div className="text-2xl font-semibold mt-1">{videosWithLinks} <span className="text-sm text-muted-foreground">({Math.round(videosWithLinks/videos.length*100)}%)</span></div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-8 text-sm text-muted-foreground">
-                      <p>The analytics dashboard provides high-level insights based on your search results. Enterprise users have access to detailed performance metrics, trend analysis, and competitor benchmarking.</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          ) : (
-            <Card className="shadow-sm border-border/80">
-              <CardContent className="px-6 py-10 flex flex-col items-center justify-center text-center">
-                <div className="bg-primary/10 dark:bg-primary/20 p-3 rounded-full mb-4">
-                  <SearchCheck className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-medium">No Search Results Yet</h3>
-                <p className="text-muted-foreground mt-2 max-w-md">
-                  Enter a brand name and configure your search parameters above to find YouTube videos mentioning your brand.
-                </p>
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          ) : showEmptyCard && comparisons.length > 0 ? (
+            // This is the empty card that appears after clicking "Compare Brands"
+            // We only show it if we have existing comparisons 
+            <div className="mb-10">
+              <ComparisonEmptyCard />
+            </div>
+          ) : !isCompareMode ? (
+            // Default "No results yet" card - only shown if not in compare mode
+            <div className="mb-10">
+              <NoResultsCard />
+            </div>
+          ) : null}
+          
+          {/* Brand Comparisons Section - Always shown when there are comparisons */}
+          {comparisons.length > 0 && (
+            <BrandComparisonsSection
+              comparisons={comparisons}
+              onRemove={removeComparison}
+            />
           )}
         </div>
       </main>

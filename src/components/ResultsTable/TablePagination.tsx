@@ -38,7 +38,7 @@ export const TablePagination = ({
     <div className="flex items-center justify-between px-2 py-3">
       <div className="text-sm text-muted-foreground">
         {isLoading ? (
-          <div className="h-5 w-60 bg-gray-200 rounded animate-pulse" />
+          <div className="h-5 w-60 bg-muted-foreground/20 rounded animate-pulse" />
         ) : (
           `Showing ${startIndex + 1} to ${Math.min(
             endIndex,
@@ -52,7 +52,7 @@ export const TablePagination = ({
           Array.from({ length: 7 }).map((_, i) => (
             <div
               key={i}
-              className="h-8 w-10 bg-gray-200 rounded animate-pulse"
+              className="h-8 w-10 bg-muted-foreground/20 rounded animate-pulse"
             />
           ))
         ) : (

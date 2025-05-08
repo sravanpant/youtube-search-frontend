@@ -179,7 +179,7 @@ export const ExportMenu = ({ sortedVideos, searchParams }: ExportMenuProps) => {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="flex items-center gap-1 bg-white border-neutral-300 text-neutral-700"
+            className="flex items-center gap-1"
           >
             <DownloadCloud className="h-4 w-4" />
             Export
@@ -188,27 +188,27 @@ export const ExportMenu = ({ sortedVideos, searchParams }: ExportMenuProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="border border-neutral-200 shadow-lg"
+          className="border border-border shadow-md"
         >
           <DropdownMenuItem
             onClick={exportToJson}
-            className="cursor-pointer hover:bg-neutral-50"
+            className="cursor-pointer"
           >
-            <FileJson className="h-4 w-4 mr-2 text-blue-600" />
+            <FileJson className="h-4 w-4 mr-2 text-blue-600 dark:text-blue-400" />
             Export as JSON
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={exportToCsv}
-            className="cursor-pointer hover:bg-neutral-50"
+            className="cursor-pointer"
           >
-            <FileSpreadsheet className="h-4 w-4 mr-2 text-green-600" />
+            <FileSpreadsheet className="h-4 w-4 mr-2 text-green-600 dark:text-green-400" />
             Export as CSV
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={exportToExcel}
-            className="cursor-pointer hover:bg-neutral-50"
+            className="cursor-pointer"
           >
-            <Table className="h-4 w-4 mr-2 text-green-700" />
+            <Table className="h-4 w-4 mr-2 text-green-700 dark:text-green-500" />
             Export as Excel
           </DropdownMenuItem>
         </DropdownMenuContent>

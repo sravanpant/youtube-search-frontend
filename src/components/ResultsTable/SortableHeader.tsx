@@ -23,7 +23,7 @@ export const SortableHeader = ({
       <Button
         variant="ghost"
         onClick={() => onSort(field)}
-        className="hover:bg-slate-100 h-8 w-full flex items-center justify-start gap-1"
+        className="hover:bg-muted/60 h-8 w-full flex items-center justify-start gap-1"
       >
         {label}
         {currentSort === field ? (
