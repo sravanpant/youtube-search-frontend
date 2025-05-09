@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from "react";
 import { SearchFormProps, SearchParams } from "@/types/types";
-import { DateFilterOption } from "@/types/enums";
+import { DateFilterOption, KeywordFilterOption } from "@/types/enums";
+import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
 
 import { PrimarySearchField } from "./SearchForm/PrimarySearchField";
 import { FiltersToggleButton } from "./SearchForm/FiltersToggleButton";
@@ -25,6 +26,8 @@ export default function SearchForm({
     min_views: 1000,
     date_filter: DateFilterOption.ALL_TIME,
     country_code: "",
+    keyword_filter: KeywordFilterOption.ANY,
+    excluded_channels: [],
   });
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -44,6 +47,10 @@ export default function SearchForm({
     if (key === "max_results" && value === 30) return false;
     if (key === "date_filter" && value === DateFilterOption.ALL_TIME)
       return false;
+    if (key === "keyword_filter" && value === KeywordFilterOption.ANY)
+      return false;
+    if (key === "excluded_channels" && (!Array.isArray(value) || !value.length))
+      return false;
     return true;
   }).length;
 
@@ -57,6 +64,8 @@ export default function SearchForm({
       country_code: "",
       custom_date_from: undefined,
       custom_date_to: undefined,
+      keyword_filter: KeywordFilterOption.ANY,
+      excluded_channels: [],
     });
   };
 
@@ -129,14 +138,23 @@ export default function SearchForm({
         </div>
       </div>
 
-      {/* Advanced Filters Section - Collapsible */}
-      {isFiltersOpen && (
-        <AdvancedFiltersSection
-          formData={formData}
-          setFormData={setFormData}
-          onReset={resetFilters}
-        />
-      )}
+      {/* Advanced Filters Section - with Animation */}
+      <AnimatePresence>
+        {isFiltersOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+            animate={{ opacity: 1, height: "auto", overflow: "visible" }}
+            exit={{ opacity: 0, height: 0, overflow: "hidden" }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <AdvancedFiltersSection
+              formData={formData}
+              setFormData={setFormData}
+              onReset={resetFilters}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Search guidelines */}
       <SearchTips />

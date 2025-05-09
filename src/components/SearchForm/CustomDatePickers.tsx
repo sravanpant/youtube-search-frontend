@@ -1,7 +1,8 @@
-// frontend/src/components/SearchForm/CustomDatePickers.tsx
+// src/components/SearchForm/CustomDatePickers.tsx
 import { Clock } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
+import { motion } from "framer-motion";
 
 interface CustomDatePickersProps {
   fromDate?: Date;
@@ -27,15 +28,21 @@ export function CustomDatePickers({
           <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
           From Date
         </Label>
-        <DatePicker
-          id="custom_date_from"
-          onChange={onFromDateChange}
-          className="h-10 bg-background border-input focus:ring-0 focus:ring-offset-0"
-        />
+        <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+          <DatePicker
+            id="custom_date_from"
+            onChange={onFromDateChange}
+            className="w-full"
+          />
+        </motion.div>
         {fromDate && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-xs text-muted-foreground mt-1"
+          >
             Selected: {fromDate.toLocaleDateString()}
-          </p>
+          </motion.p>
         )}
       </div>
 
@@ -48,15 +55,21 @@ export function CustomDatePickers({
           <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
           To Date
         </Label>
-        <DatePicker
-          id="custom_date_to"
-          onChange={onToDateChange}
-          className="h-10 bg-background border-input focus:ring-0 focus:ring-offset-0"
-        />
+        <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+          <DatePicker
+            id="custom_date_to"
+            onChange={onToDateChange}
+            className="w-full"
+          />
+        </motion.div>
         {toDate && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-xs text-muted-foreground mt-1"
+          >
             Selected: {toDate.toLocaleDateString()}
-          </p>
+          </motion.p>
         )}
       </div>
     </>

@@ -1,5 +1,5 @@
 // src/types/types.ts
-import { DateFilterOption } from "@/types/enums";
+import { DateFilterOption, KeywordFilterOption } from "@/types/enums";
 
 export interface ThumbnailItem {
   url: string;
@@ -23,6 +23,8 @@ export interface SearchParams {
   custom_date_from?: Date;
   custom_date_to?: Date;
   country_code?: string;
+  keyword_filter?: KeywordFilterOption; // New field
+  excluded_channels?: string[]; // New field
 }
 
 export interface Video {

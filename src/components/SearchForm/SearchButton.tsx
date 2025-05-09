@@ -12,7 +12,7 @@ export function SearchButton({ onClick, isLoading, disabled }: SearchButtonProps
   return (
     <Button
       onClick={onClick}
-      className="h-11 px-5 text-base bg-primary hover:bg-primary/90 text-white transition-colors"
+      className="h-11 px-5 text-bas cursor-pointer bg-primary hover:bg-primary/90 text-white transition-colors"
       disabled={disabled || isLoading}
     >
       {isLoading ? (

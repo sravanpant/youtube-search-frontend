@@ -15,7 +15,7 @@ export function CompareButton({
     <Button
       onClick={onClick}
       variant="outline"
-      className="gap-2 min-w-[160px] h-11" // Increased button width
+      className="gap-2 min-w-[160px] h-11 cursor-pointer" // Increased button width
       disabled={disabled}
     >
       <GitCompareArrows className="h-4 w-4" />
