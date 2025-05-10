@@ -26,7 +26,7 @@ export function MaxResultsSelector({
   value,
   onChange,
 }: MaxResultsSelectorProps) {
-  const maxResultsOptions = [10, 20, 30, 50, 100, 200, 500];
+  const maxResultsOptions = [10, 20, 30, 50, 100, 200, 300, 400, 500];
   const showWarningIndicator = value > 50;
 
   return (
